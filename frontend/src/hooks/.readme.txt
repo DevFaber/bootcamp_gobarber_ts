@@ -1,0 +1,10 @@
+# O metodo createContext possui a propriedade Provider que permite o acesso 
+  ao contexto criado, portanto para dar acesso ao contexto é necessário o uso
+  do SeuContext.Provider por volta do componente que acessará esse contexto
+
+# O fluxo do ContextAPI segue 
+  1- Criar e exportar o contexto => "import {createContext} from 'react
+  2- Configurar o Contexto: => Importar o context no App e aplicar o .Provider 
+      <SeuContexto.Provider value={dados a enviar}></SeuContexto.Provider>  
+  3- Importar o contexto configurado: ** Para obter as variáveis do contexto é necessário usar o hook useContext do react
+  

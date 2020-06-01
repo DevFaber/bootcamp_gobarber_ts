@@ -1,14 +1,19 @@
 import { Router } from 'express'
 import multer from 'multer'
-
+// import { getCustomRepository } from 'typeorm'
 import uploadConfig from '../config/upload'
 import CreateUserService from '../services/CreateUserService'
 import UpdateUserAvatarService from '../services/UpdateUserAvatarService'
+// import UserRepository from '../reppos/UserRepository'
 
 import authMiddleware from '../middlewares/auth'
 
 const userRouter = Router()
 const upload = multer(uploadConfig)
+
+// userRouter.get('/', async (request, response) => {
+//   const userRepository = getCustomRepository(UserRepository)
+// })
 
 userRouter.post('/', async (request, response) => {
   const { name, email, password } = request.body
