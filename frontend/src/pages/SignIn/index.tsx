@@ -3,11 +3,12 @@ import { FiLogIn, FiMail, FiLock } from 'react-icons/fi'
 import { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
 import * as Yup from 'yup'
+import { Link } from 'react-router-dom'
 import getValidationErrors from '../../utils/getValidationErrors'
 import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
 
-import { Container, Content, Background } from './styles'
+import { Container, Content, AnimationContainer, Background } from './styles'
 import logo from '../../assets/barber_logo.svg'
 
 import Input from '../../components/Input'
@@ -55,7 +56,7 @@ const SignIn: React.FC = () => {
         }
 
         addToast({
-          type: 'info',
+          type: 'error',
           title: 'Falha de autenticação',
           description: 'Ocorreu um erro na tentativa do login',
         })
@@ -67,28 +68,30 @@ const SignIn: React.FC = () => {
   return (
     <Container>
       <Content>
-        <img src={logo} alt="GoBarber" />
+        <AnimationContainer>
+          <img src={logo} alt="GoBarber" />
 
-        <Form onSubmit={handleSubmit} ref={formRef}>
-          <h1>Faça seu login</h1>
+          <Form onSubmit={handleSubmit} ref={formRef}>
+            <h1>Faça seu login</h1>
 
-          <Input icon={FiMail} name="email" placeholder="E-mail" />
-          <Input
-            icon={FiLock}
-            name="password"
-            type="password"
-            placeholder="Senha"
-          />
+            <Input icon={FiMail} name="email" placeholder="E-mail" />
+            <Input
+              icon={FiLock}
+              name="password"
+              type="password"
+              placeholder="Senha"
+            />
 
-          <Button type="submit">Entrar</Button>
+            <Button type="submit">Entrar</Button>
 
-          <a href="forgotpass">Esqueci minha senha</a>
-        </Form>
+            <a href="forgotpass">Esqueci minha senha</a>
+          </Form>
 
-        <a href="register">
-          <FiLogIn />
-          Criar conta
-        </a>
+          <Link to="/signup">
+            <FiLogIn />
+            Criar conta
+          </Link>
+        </AnimationContainer>
       </Content>
       <Background />
     </Container>
