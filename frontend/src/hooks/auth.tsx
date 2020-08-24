@@ -1,10 +1,12 @@
+/* eslint-disable camelcase */
 import React, { createContext, useCallback, useState, useContext } from 'react'
 import api from '../services/api'
 
 interface UserData {
+  id: string
   name: string
   email: string
-  password: string
+  avatar_url: string
 }
 
 interface SignInCredentials {
@@ -15,7 +17,8 @@ interface SignInCredentials {
 interface AuthContextData {
   user: UserData
   signIn(credentials: SignInCredentials): Promise<void>
-  // signOut(): void
+  signOut(): void
+  updateUser(user: UserData): void
 }
 
 interface AuthState {
@@ -31,6 +34,8 @@ const AuthProvider: React.FC = ({ children }) => {
     const user = localStorage.getItem('@GoBarber:user')
 
     if (token && user) {
+      api.defaults.headers.authorization = `Bearer ${token}`
+
       return { token, user: JSON.parse(user) }
     }
 
@@ -48,17 +53,34 @@ const AuthProvider: React.FC = ({ children }) => {
     localStorage.setItem('@GoBarber:token', token)
     localStorage.setItem('@GoBarber:user', JSON.stringify(user))
 
+    api.defaults.headers.authorization = `Bearer ${token}`
+
     setData({ token, user })
   }, [])
 
-  // const signOut = useCallback(() => {
-  //   localStorage.removeItem('@GoBarber:token')
-  //   localStorage.removeItem('@GoBarber:user')
-  // }, [])
-  // setData({} as AuthState)
+  const signOut = useCallback(() => {
+    localStorage.removeItem('@GoBarber:token')
+    localStorage.removeItem('@GoBarber:user')
+
+    setData({} as AuthState)
+  }, [])
+
+  const updateUser = useCallback(
+    (user: UserData) => {
+      localStorage.setItem('@GoBarber:user', JSON.stringify(user))
+
+      setData({
+        token: data.token,
+        user,
+      })
+    },
+    [setData, data.token]
+  )
 
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn }}>
+    <AuthContext.Provider
+      value={{ user: data.user, signIn, signOut, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   )

@@ -32,7 +32,7 @@
 
     "import/extensions": [
       "error",
-      "ignorePackage",
+      "ignorePackages",
       {
         "ts": "never"
       }

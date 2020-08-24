@@ -1,8 +1,11 @@
-import { getRepository, Repository } from 'typeorm'
+import { getRepository, Repository, Not } from 'typeorm'
 
 import IUsersRepository from '../../../repositories/IUsersRepository'
 import User from '@modules/users/infra/typeorm/entities/User'
 import ICreateUsersDTO from '../../../dtos/ICreateUsersDTO'
+import IFindAllProvidersDTO from '../../../dtos/IFindAllProvidersDTO'
+
+
 
 class UsersRepository implements IUsersRepository {
   private ormRepository: Repository<User>
@@ -11,31 +14,46 @@ class UsersRepository implements IUsersRepository {
     this.ormRepository = getRepository(User)
   }
 
-  public async findById(id: string): Promise<User | undefined> {
-    const user = await this.ormRepository.findOne(id)
+      public async findAllProviders({ except_user_id }: IFindAllProvidersDTO): Promise<User[]> {
+        let users: User[]
 
-    return user
-  }
+        if (except_user_id) {
+          users = await this.ormRepository.find({
+            where: {
+              id: Not(except_user_id)
+            }
+          })
+        } else {
+          users = await this.ormRepository.find()
+        }
+        return users
+      }
 
-  public async findByEmail(email: string): Promise<User | undefined> {
-    const user = await this.ormRepository.findOne({
-      where: { email }
-    })
+      public async findById(id: string): Promise<User | undefined> {
+        const user = await this.ormRepository.findOne(id)
 
-    return user
-  }
+        return user
+      }
 
-  public async create({ name, email, password}: ICreateUsersDTO): Promise<User> {
-    const user = this.ormRepository.create({ name, email, password })
+      public async findByEmail(email: string): Promise<User | undefined> {
+        const user = await this.ormRepository.findOne({
+          where: { email }
+        })
 
-    await this.ormRepository.save(user)
+        return user
+      }
 
-    return user
-  }
+      public async create({ name, email, password}: ICreateUsersDTO): Promise<User> {
+        const user = this.ormRepository.create({ name, email, password })
 
-  public async save(user: User): Promise<User> {
-    return this.ormRepository.save(user)
-  }
+        await this.ormRepository.save(user)
+
+        return user
+      }
+
+      public async save(user: User): Promise<User> {
+        return this.ormRepository.save(user)
+      }
 }
 
 export default UsersRepository

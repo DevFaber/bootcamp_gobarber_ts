@@ -1,21 +1,18 @@
-import { startOfHour } from 'date-fns'
+import { startOfHour, isBefore, getHours, format } from 'date-fns'
 import { injectable, inject } from 'tsyringe'
+
 
 import AppError from '@shared/errors/AppError'
 
 import Appointment from '../infra/typeorm/entities/Appointment'
 import IAppointmentRepository from '@modules/appointments/repositories/IAppointmentsRepository'
 
-/**
- * No Service ficará as funções responsáveis pelos métodos do repositório *
- * Este serviço precisa resolver os seguintes problemas:
- * ###-1 Recebimento e retorno dos dados do método. ===> MODEL
- * ###-2 Tratativa de erros e exceções.             ===> ERRORS
- * ###-3 Comunicação e acesso ao repositório        ===> REPOSITORY
- */
+import Notification from '@modules/notifications/infra/typeorm/schemas/Notification'
+import INotificationsRepository from '@modules/notifications/repositories/INotificationsRepository'
 
 interface IRequest {
   provider_id: string
+  user_id: string
   date: Date
 }
 
@@ -23,18 +20,32 @@ interface IRequest {
 class CreateAppointmentService {
   constructor(
     @inject('AppointmentsRepository')
-    private appointmentsRepository: IAppointmentRepository
-  ) {
+    private appointmentsRepository: IAppointmentRepository,
 
-  }
+    @inject('NotificationsRepository')
+    private notificationsRepository: INotificationsRepository
+  ) {}
 
-
-  public async execute({ provider_id, date }: IRequest): Promise<Appointment> {
+  public async execute({ provider_id, user_id, date }: IRequest): Promise<Appointment> {
 
     const appointmentDate = startOfHour(date)
 
+
+    if(isBefore(appointmentDate, Date.now())) {
+      throw new AppError('Impossible to create an appointment at past date!')
+    }
+
+    if (user_id === provider_id) {
+      throw new AppError('You can not create an appointment with yourself!')
+    }
+
+    if ( getHours(appointmentDate) < 8 || getHours(appointmentDate) > 17) {
+      throw new AppError('You can not create an appointment before 8am or after 5pm!')
+    }
+
     const hasAlreadyAppointment = await this.appointmentsRepository.findByDate(
       appointmentDate,
+      provider_id,
       )
 
     if (hasAlreadyAppointment) {
@@ -43,7 +54,17 @@ class CreateAppointmentService {
 
     const appointment = await this.appointmentsRepository.create({
       provider_id,
+      user_id,
       date,
+    })
+
+    const dateFormatted = format(appointmentDate, "dd/MM/yyy 'às' HH:mm 'hs")
+
+    
+
+    await this.notificationsRepository.create({
+      recipient_id: provider_id,
+      content: `Novo agendamento para dia ${dateFormatted}`
     })
 
     return appointment

@@ -1,14 +1,22 @@
 import { Router } from 'express'
+import { celebrate, Segments, Joi } from 'celebrate'
 
 import authMiddleware from '@modules/users/infra/http/middlewares/auth'
 import AppointmentsController from '../controllers/AppointmentsController'
-import Appointment from '../../typeorm/entities/Appointment'
+import ProviderAppointmentsController from '../controllers/ProviderAppointmentsController'
 
 const appointmentsRouter = Router()
-const appointmentsController = new AppointmentsController
+const appointmentsController = new AppointmentsController()
+const providerAppointmentsController = new ProviderAppointmentsController()
 
 appointmentsRouter.use(authMiddleware)
 
-appointmentsRouter.post('/', appointmentsController.create)
+appointmentsRouter.post('/', celebrate({
+  [Segments.BODY]: {
+    provider_id: Joi.string().uuid().required(),
+    date: Joi.date()
+  }
+}), appointmentsController.create)
+appointmentsRouter.get('/yours', providerAppointmentsController.index)
 
 export default appointmentsRouter

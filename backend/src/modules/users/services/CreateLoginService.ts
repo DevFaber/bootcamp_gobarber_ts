@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import AppError from '@shared/errors/AppError'
 import authConfig from '@config/authConfig'
 
-import User from '../infra/typeorm/entities/User'
+import User from '@modules/users/infra/typeorm/entities/User'
 import IUsersRepository from '../repositories/IUsersRepository'
 import IHashProvider from '../providers/HashProvider/models/IHashProvider'
 
@@ -33,13 +33,14 @@ class CreateLoginService {
     const user = await this.usersRepository.findByEmail(email)
 
     if (!user) {
-      throw new AppError('Dados incorretos!', 401)
+      throw new AppError('Usuário não encontrado!', 401)
     }
 
+    console.log(email)
     const passwordVerify = await this.hashProvider.compareHash(password, user.password)
 
     if (!passwordVerify) {
-      throw new AppError('Dados incorretos!', 401)
+      throw new AppError('Senha não confere!', 401)
     }
 
     const token = sign({}, authConfig.jwt.secret, {

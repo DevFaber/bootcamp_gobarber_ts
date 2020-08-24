@@ -1,3 +1,15 @@
-import { createConnection } from 'typeorm'
+// import { createConnection } from 'typeorm'
 
-createConnection()
+// createConnection()
+
+// ########### FOR ONLY ONE DATABASE CONNECTION #####################
+
+
+
+
+
+//*********** FOR MORE CONNECTIONS USE LIKE THIS****************** */
+
+import { createConnections } from 'typeorm'
+
+createConnections()

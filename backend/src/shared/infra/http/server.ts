@@ -1,5 +1,8 @@
 import 'reflect-metadata'
+import 'dotenv/config'
+
 import express, { Request, Response, NextFunction } from 'express'
+import { errors } from 'celebrate'
 import cors from 'cors'
 import 'express-async-errors'
 
@@ -14,8 +17,9 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
-app.use('/files', express.static(uploadConfig.directory))
+app.use('/files', express.static(uploadConfig.uploadsFolder))
 app.use(routes)
+app.use(errors())
 app.use(
   (err: Error, request: Request, response: Response, next: NextFunction) => {
     if (err instanceof AppError) {
@@ -36,3 +40,5 @@ app.use(
 app.listen(3333, () => {
   console.log('👍BACKEND START.....')
 })
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';

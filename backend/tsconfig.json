@@ -6,6 +6,7 @@
     "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
+    "allowJs": true,
     "strict": true,
 
     "strictPropertyInitialization": false,

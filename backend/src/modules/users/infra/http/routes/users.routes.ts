@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import multer from 'multer'
 import { container } from 'tsyringe'
+import { celebrate, Segments, Joi } from 'celebrate'
+
 
 import uploadConfig from '@config/upload'
 import UpdateUserAvatarService from '@modules/users/services/UpdateUserAvatarService'
@@ -15,7 +17,13 @@ const usersController = new UsersController()
 const userAvatarController = new UserAvatarController()
 
 
-userRouter.post('/', usersController.create)
+userRouter.post('/',  celebrate({
+  [Segments.BODY]: {
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  }
+}), usersController.create)
 
 userRouter.put('/', async (request, response) => {})
 

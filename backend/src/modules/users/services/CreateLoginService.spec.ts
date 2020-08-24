@@ -4,14 +4,21 @@ import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider'
 import CreateLoginService from './CreateLoginService'
 import CreateUserService from './CreateUserService'
 
+let fakeUserRepository: FakeUserRepository
+let fakeHashProvider: FakeHashProvider
+let createUser: CreateUserService
+let createLogin: CreateLoginService
+
+
 describe('CreateLogin', () => {
+beforeEach(()=> {
+  fakeUserRepository = new FakeUserRepository()
+  fakeHashProvider = new FakeHashProvider()
+  createUser = new CreateUserService(fakeUserRepository, fakeHashProvider)
+  createLogin = new CreateLoginService(fakeUserRepository, fakeHashProvider)
+})
+
   it('Should be able to authenticate a user', async () => {
-    const fakeUserRepository = new FakeUserRepository()
-    const fakeHashProvider = new FakeHashProvider()
-
-    const createLogin = new CreateLoginService(fakeUserRepository, fakeHashProvider)
-    const createUser = new CreateUserService(fakeUserRepository, fakeHashProvider)
-
     const user = await createUser.execute({
       name: 'Miller Scot',
       email: 'miller@teste.com',
@@ -28,10 +35,6 @@ describe('CreateLogin', () => {
   })
 
   it('Should be not able to authenticate a non existing user', async () => {
-    const fakeUserRepository = new FakeUserRepository()
-    const fakeHashProvider = new FakeHashProvider()
-    const createLogin = new CreateLoginService(fakeUserRepository, fakeHashProvider)
-
     expect(createLogin.execute({
       email: 'miller@teste.com',
       password: '123456'
@@ -39,12 +42,6 @@ describe('CreateLogin', () => {
   })
 
   it('Should not be able to authenticate with wrong password', async () => {
-    const fakeUserRepository = new FakeUserRepository()
-    const fakeHashProvider = new FakeHashProvider()
-
-    const createLogin = new CreateLoginService(fakeUserRepository, fakeHashProvider)
-    const createUser = new CreateUserService(fakeUserRepository, fakeHashProvider)
-
     await createUser.execute({
       name: 'Miller Scot',
       email: 'miller@teste.com',
